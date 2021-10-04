@@ -1,0 +1,5 @@
+/vendor/
+.history/*
+tests/App
+tests/public
+tests/src

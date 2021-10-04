@@ -1,0 +1,26 @@
+{
+    "name": "bubu-framework/router",
+    "description": "Bubu-framework's Router",
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/bubu-framework/router",
+    "authors": [
+        {
+            "name": "QuentinBubu",
+            "email": "QuentinBubu.dev@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Bubu\\Router\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Bubu\\Router\\Tests\\" : "tests/"
+        }
+    },
+    "require": {
+        "bubu-framework/http": "^1.0"
+    }
+}
