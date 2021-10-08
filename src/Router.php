@@ -5,13 +5,16 @@ use Bubu\Router\Exception\RouterException;
 
 class Router
 {
-    private static array $routes = [
+    public static array $routes = [
         'GET'    => [],
         'POST'   => [],
         'PUT'    => [],
         'PATCH'  => [],
         'DELETE' => []
     ];
+
+    private string $controllerNamespace = '';
+    private string $controllerSuffix    = '';
 
     private static array $named = [];
 
@@ -53,16 +56,42 @@ class Router
         }
     }
 
-    public static function match()
+    public static function controllerNamespace(string $namespace): void
     {
-        if (!isset(self::$routes[$_SERVER['REQUEST_METHOD']])) throw new RouterException('REQUEST_METHOD available');
-        $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
+        self::$controllerNamespace = $namespace;
+    }
 
+    public static function getControllerNamespace(): string
+    {
+        return self::$controllerNamespace;
+    }
+
+    public static function controllerSuffix(string $suffix): void
+    {
+        self::$controllerSuffix = $suffix;
+    }
+
+    public static function getControllerSuffix(): string
+    {
+        return self::$controllerSuffix;
     }
 
     public static function getNamedRoute(string $name): string
     {
-        if (!isset(self::$named[$name])) throw new RouterException('No named route available');
+        if (!isset(self::$named[$name])) throw new RouterException('No route available!', 404);
         return self::$named[$name];
+    }
+
+    public static function match(?string $uri = null)
+    {
+        if (!isset(self::$routes[$_SERVER['REQUEST_METHOD']])) throw new RouterException('Method Not Allowed!', 405);
+        if (is_null($uri)) $uri = $_SERVER['REQUEST_URI'];
+        $uri = trim($uri, '/');
+
+        foreach (self::$routes[$_SERVER['REQUEST_METHOD']] as $route) {
+            if ($route->match()) return $route->call();
+        }
+
+        throw new RouterException('No route available!', 404);
     }
 }
