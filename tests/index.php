@@ -1,9 +1,15 @@
 <?php
 
+
 use Bubu\Router\Router;
 
 require '../vendor/autoload.php';
 
-Router::get('Test', 'Ok#ok', 'rr');
+Router::controllerNamespace('Controller');
+Router::controllerSuffix('');
 
-var_dump(get_class_vars(Router::class));
+Router::get('/test/:id-:slug','Ok#ok');
+
+
+Router::check();
+echo 'ok';

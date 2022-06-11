@@ -12,7 +12,8 @@
     ],
     "autoload": {
         "psr-4": {
-            "Bubu\\Router\\": "src/"
+            "Bubu\\Router\\": "src/",
+            "Controller\\": "Controller/"
         }
     },
     "autoload-dev": {

@@ -13,40 +13,43 @@ class Router
         'DELETE' => []
     ];
 
-    private string $controllerNamespace = '';
-    private string $controllerSuffix    = '';
+    private static string $controllerNamespace = '';
+    private static string $controllerSuffix    = '';
 
     private static array $named = [];
 
-    private static function register(string $route, mixed $callable, string $method, ?string $name): void
+    private static function register(string $route, mixed $callable, string $method, ?string $name): Routes
     {
-        self::$routes[$method][$route] = new Routes($route, $callable);
+        $newRoute = new Routes($route, $callable);
+        self::$routes[$method][$route] = $newRoute;
         if (!is_null($name)) self::$named[] = $route;
+        elseif (is_string($callable)) self::$named[] = $callable;
+        return $newRoute;
     }
 
-    public static function get(string $route, mixed $callable, ?string $name = null): void
+    public static function get(string $route, mixed $callable, ?string $name = null): Routes
     {
-        self::register($route, $callable, 'GET', $name);
+        return self::register($route, $callable, 'GET', $name);
     }
 
-    public static function post(string $route, mixed $callable, ?string $name = null): void
+    public static function post(string $route, mixed $callable, ?string $name = null): Routes
     {
-        self::register($route, $callable, 'POST', $name);
+        return self::register($route, $callable, 'POST', $name);
     }
 
-    public static function put(string $route, mixed $callable, ?string $name = null): void
+    public static function put(string $route, mixed $callable, ?string $name = null): Routes
     {
-        self::register($route, $callable, 'PUT', $name);
+        return self::register($route, $callable, 'PUT', $name);
     }
 
-    public static function patch(string $route, mixed $callable, ?string $name = null): void
+    public static function patch(string $route, mixed $callable, ?string $name = null): Routes
     {
-        self::register($route, $callable, 'PATCH', $name);
+        return self::register($route, $callable, 'PATCH', $name);
     }
 
-    public static function delete(string $route, mixed $callable, ?string $name = null): void
+    public static function delete(string $route, mixed $callable, ?string $name = null): Routes
     {
-        self::register($route, $callable, 'DELETE', $name);
+        return self::register($route, $callable, 'DELETE', $name);
     }
 
     public static function multiple(string $methods, string $route, mixed $callable, ?string $name = null): void
@@ -82,14 +85,13 @@ class Router
         return self::$named[$name];
     }
 
-    public static function match(?string $uri = null)
+    public static function check(?string $uri = null)
     {
-        if (!isset(self::$routes[$_SERVER['REQUEST_METHOD']])) throw new RouterException('Method Not Allowed!', 405);
+        if (!in_array($_SERVER['REQUEST_METHOD'], array_keys(self::$routes))) throw new RouterException('Method Not Allowed!', 405);
         if (is_null($uri)) $uri = $_SERVER['REQUEST_URI'];
         $uri = trim($uri, '/');
-
         foreach (self::$routes[$_SERVER['REQUEST_METHOD']] as $route) {
-            if ($route->match()) return $route->call();
+            if ($route->check($uri)) return $route->call();
         }
 
         throw new RouterException('No route available!', 404);
